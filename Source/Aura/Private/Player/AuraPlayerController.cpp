@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/EnemyInterface.h"
 
 
 AAuraPlayerController::AAuraPlayerController()
@@ -12,6 +13,71 @@ AAuraPlayerController::AAuraPlayerController()
 	bReplicates = true;
 }
 
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+
+	CursorTrace();	
+}
+
+void AAuraPlayerController::CursorTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+
+	LastActor = ThisActor;
+	ThisActor = CursorHit.GetActor();
+
+	if (Cast<IEnemyInterface>(LastActor.GetInterface()) == nullptr)
+	{
+		if (Cast<IEnemyInterface>(ThisActor.GetInterface()) != nullptr)
+		{
+			//case B
+			ThisActor->HighlightActor();
+			/*if(GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("ThisActor->HighlightActor()"));*/	
+		}
+		else
+		{
+			//case A - both are null and do nothing
+			/*if(GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("Case A"));*/
+			
+		}
+	}
+	else // LastActor is valid
+	{
+		if (Cast<IEnemyInterface>(ThisActor.GetInterface()) == nullptr)
+		{
+			//case C
+			LastActor->UnHighlightActor();
+			/*if(GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("LastActor->UnHighlightActor()"));*/
+		}
+		else //both actors are valid
+		{
+			if (LastActor != ThisActor)
+			{
+				//case B
+				LastActor->UnHighlightActor();
+				ThisActor->HighlightActor();
+
+				/*if(GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("LastActor->UnHighlightActor()... ThisActor->HighlightActor()"));*/
+				
+			}
+			else
+			{
+				// case E - do nothing
+				/*if(GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, TEXT("Case E"));*/
+			}
+		}
+	}
+	
+	
+}
 void AAuraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
