@@ -1,4 +1,3 @@
-// CopyrightVIkasAuraProject
 
 
 #include "Character/AuraCharacterBase.h"
