@@ -9,7 +9,3 @@ void UAuraUserWidget::SetWidgetController(UObject* InWidgetController)
 	WidgetControllerSet();
 }
 
-void UAuraUserWidget::WidgetControllerSet()
-{
-	
-}
