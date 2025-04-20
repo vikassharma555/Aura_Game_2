@@ -30,7 +30,7 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 			check(Effect.GameplayEffectClass);
 			FGameplayEffectContextHandle EffectContextHandle = TargetAsc->MakeEffectContext();
 			EffectContextHandle.AddSourceObject(this);
-			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, 1.f, EffectContextHandle);
+			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, ActorLevel, EffectContextHandle);
 			Effect.ActiveGameplayEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 	}
@@ -51,7 +51,7 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 			check(Effect.GameplayEffectClass);
 			FGameplayEffectContextHandle EffectContextHandle = TargetAsc->MakeEffectContext();
 			EffectContextHandle.AddSourceObject(this);
-			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, 1.f, EffectContextHandle);
+			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, ActorLevel, EffectContextHandle);
 			Effect.ActiveGameplayEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 		if (Effect.RemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
