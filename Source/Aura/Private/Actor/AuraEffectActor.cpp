@@ -4,9 +4,7 @@
 #include "Actor/AuraEffectActor.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemInterface.h"
-#include "AbilitySystem/AuraAttributeSet.h"
-#include "Components/SphereComponent.h"
+
 
 AAuraEffectActor::AAuraEffectActor()
 {
@@ -18,33 +16,47 @@ AAuraEffectActor::AAuraEffectActor()
 void AAuraEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	
-
 }
 
-void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
+void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 {
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	if (TargetASC == nullptr) return;
-
-	check(GameplayEffectClass);
-	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
-	EffectContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContextHandle);
-	TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (TargetAsc == nullptr) return;
 	
-}
-
-void AAuraEffectActor::OnnOverlap(AActor* TargetActor)
-{
-	
+	for (auto& Effect : GameplayEffects)
+	{
+		if (Effect.ApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
+		{
+			check(Effect.GameplayEffectClass);
+			FGameplayEffectContextHandle EffectContextHandle = TargetAsc->MakeEffectContext();
+			EffectContextHandle.AddSourceObject(this);
+			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, 1.f, EffectContextHandle);
+			Effect.ActiveGameplayEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+	}
 }
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (TargetAsc == nullptr) return;
 	
+	for (auto& Effect : GameplayEffects)
+	{
+		if (Effect.ApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
+		{
+			check(Effect.GameplayEffectClass);
+			FGameplayEffectContextHandle EffectContextHandle = TargetAsc->MakeEffectContext();
+			EffectContextHandle.AddSourceObject(this);
+			const FGameplayEffectSpecHandle EffectSpecHandle = TargetAsc->MakeOutgoingSpec(Effect.GameplayEffectClass, 1.f, EffectContextHandle);
+			Effect.ActiveGameplayEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+		if (Effect.RemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
+		{
+			check(Effect.GameplayEffectClass);
+			TargetAsc->RemoveActiveGameplayEffect(Effect.ActiveGameplayEffectHandle);
+		}
+	}
 }
 
 
