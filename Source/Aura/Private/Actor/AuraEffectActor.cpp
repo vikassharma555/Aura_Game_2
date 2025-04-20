@@ -34,6 +34,9 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 			Effect.ActiveGameplayEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 	}
+
+	if (bDestroyAfterEffectApplied)
+		Destroy();
 }
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
@@ -57,6 +60,9 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 			TargetAsc->RemoveActiveGameplayEffect(Effect.ActiveGameplayEffectHandle);
 		}
 	}
+
+	if (bDestroyAfterEffectApplied)
+		Destroy();
 }
 
 
