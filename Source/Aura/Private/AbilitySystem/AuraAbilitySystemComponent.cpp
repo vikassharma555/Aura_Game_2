@@ -5,17 +5,17 @@
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
+	// When GameplayEffect(GE_Health, GE_Mana...) is applied ( HealthPotion/ ManaPotion)...get notification...using delegates
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UAuraAbilitySystemComponent::EffectApplied);
 }
 
 void UAuraAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* Asc, const FGameplayEffectSpec& EffectSpec,
-                                                FActiveGameplayEffectHandle ActiveEffectHandle)
+                                                FActiveGameplayEffectHandle ActiveEffectHandle) const
 {
+	//retrieve GameplayTags associated to GameplayEffect (attached in GE_Health...)
 	FGameplayTagContainer TagContainer;
 	EffectSpec.GetAllAssetTags(TagContainer);
-	for (FGameplayTag Tag : TagContainer)
-	{
-		const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
-		GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Blue, Msg);
-	}
+
+	// broadcast -> callback function (lambda) -> attached to EffectAssetTag -> In UOverlayWidgetController
+	EffectAssetTag.Broadcast(TagContainer);	
 }
