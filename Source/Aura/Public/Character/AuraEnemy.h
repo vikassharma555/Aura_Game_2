@@ -24,9 +24,15 @@ public:
 	/*End Enemy Interface */
 
 	UPROPERTY(BlueprintReadOnly)
-	bool bHIghlighted = false;
+	bool bHighlighted = false;
+
+	/* Combat Interface */
+	FORCEINLINE virtual int32 GetPlayerLevel() override { return Level; };
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Default")
+	int32 Level =1;
 };
